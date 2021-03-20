@@ -38,7 +38,7 @@ primer_sequence = primer_drums.to_sequence(qpm=qpm)
 primer_start_time = 0
 primer_end_time = primer_start_time + seconds_per_bar
 
-# 6. Calculate the the start and end of the generated sequence
+# 6. Calculate the the start and the end of the generated sequence
 num_bar = 3
 generation_start_time = primer_end_time
 generation_end_time = generation_start_time + (seconds_per_bar * num_bar)
