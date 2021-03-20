@@ -1,14 +1,15 @@
 import os
 
-import magenta.music as mm
 from magenta.models.drums_rnn import drums_rnn_sequence_generator
 from magenta.models.shared import sequence_generator_bundle
-from magenta.music import constants
+from note_seq import constants
 from note_seq.midi_io import note_sequence_to_midi_file
 from note_seq.protobuf import generator_pb2
+from note_seq import drums_lib
+from note_seq.notebook_utils import download_bundle
 
 # 1. Download the bundle. This snippet can later be turned into a function
-mm.notebook_utils.download_bundle("drum_kit_rnn.mag", "bundles")
+download_bundle("drum_kit_rnn.mag", "bundles")
 bundle = sequence_generator_bundle.read_bundle_file(
     os.path.join("bundles", "drum_kit_rnn.mag"))
 
@@ -25,7 +26,7 @@ num_steps_per_bar = constants.DEFAULT_STEPS_PER_BAR
 seconds_per_bar = num_steps_per_bar * seconds_per_step
 
 # 4. Convert primer sequence to previously defined qpm
-primer_drums = mm.DrumTrack(
+primer_drums = drums_lib.DrumTrack(
     [frozenset(pitches) for pitches in
      [(38, 51), (), (36,), (),
       (38, 44, 51), (), (36,), (),
