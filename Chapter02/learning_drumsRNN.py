@@ -85,7 +85,7 @@ def generate_drums(bundle_dir: str = 'bundles',
                    target_dir: str = 'output',
                    generation_length: int = 1,
                    temperature: float = 1.1,
-                   primer_sequence: NoteSequence = None,
+                   input_sequence: NoteSequence = None,
                    start_with_primer: bool = False,
                    ) -> None:
     """Generates a drums midi file
@@ -116,7 +116,7 @@ def generate_drums(bundle_dir: str = 'bundles',
         start_time=time['start'],
         end_time=time['end'])
 
-    sequence = generator.generate(primer_sequence, generator_options)
+    sequence = generator.generate(input_sequence, generator_options)
     note_sequence_to_midi_file(
         sequence, os.path.join(target_dir, 'drums_rnn.mid'))
 
@@ -131,4 +131,4 @@ primer_sequence = primer_drums.to_sequence(
     qpm=constants.DEFAULT_QUARTERS_PER_MINUTE)
 
 generate_drums(generation_length=5, temperature=1.2,
-               primer_sequence=primer_sequence, start_with_primer=True)
+               input_sequence=primer_sequence, start_with_primer=True)
