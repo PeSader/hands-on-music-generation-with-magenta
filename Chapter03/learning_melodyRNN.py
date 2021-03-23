@@ -37,12 +37,12 @@ def get_bundle(bundle_name: str,
     """
 
     Args:
-      bundle_name: str: a magenta pre-trained bundle, e.g. attention_rnn.mag
-      bundle_dir: str: target directory to download bundle files
+      bundle_name: str: Magenta pre-trained bundle, e.g. attention_rnn.mag
+      bundle_dir: str: Target directory to download bundle files
         (Default value = 'bundles')
 
     Returns:
-        GeneratorBundle: a bundle file that has already been read
+      GeneratorBundle: Bundle file that has already been read
 
     """
     from magenta.models.shared import sequence_generator_bundle
@@ -56,6 +56,17 @@ def get_bundle(bundle_name: str,
 
 
 def import_generator_module(model_name: str):
+    """
+
+    Args:
+      model_name: str: Name of a magenta model, e.g. melody_rnn, drums_rnn
+
+    Returns:
+      Sequence generator module,
+        e.g. magenta.models.melody_rnn.melody_rnn_sequence_generator
+
+
+    """
     sequence_generator_module = MODEL_NAME_TO_SEQUENCE_GENERATOR[model_name]
     import_path = '.'.join(
         ['magenta.models',  model_name, sequence_generator_module])
@@ -67,6 +78,24 @@ def get_generator(generator_module,
                   generator_id: str,
                   checkpoint: Checkpoint,
                   bundle: GeneratorBundle):
+    """
+
+    Args:
+      generator_module: Sequence generator module
+        (can be imported using import_generator_module())
+      generator_id: str: A generator id, e.g. 'attention_rnn', 'drum_kit_rnn'
+      checkpoint: Checkpoint: the checkpoint of a bundle
+      bundle: GeneratorBundle: a generator bundle that has already been read
+
+    Returns:
+      An object whose class is inherited from BaseSequenceGenerator
+        e.g. MelodyRnnSequenceGenerator, DrumsRnnSequenceGenerator
+
+    Note:
+      The sequence generator returned by this function has yet to be
+        initialized using the .initialize() method
+
+    """
     generator_map = generator_module.get_generator_map()
     generator = generator_map[generator_id](
         checkpoint=checkpoint, bundle=bundle)
@@ -74,6 +103,16 @@ def get_generator(generator_module,
 
 
 def get_primer_sequence(primer_file: str = None) -> NoteSequence:
+    """
+
+    Args:
+      primer_file: str: Path to a midi file (Default value = None)
+
+    Returns:
+      NoteSequence: A note sequence obtained from the input file
+        An empty NoteSequence is returned if no path is given
+
+    """
     if primer_file:
         primer_sequence = midi_file_to_note_sequence(primer_file)
     else:
@@ -82,18 +121,18 @@ def get_primer_sequence(primer_file: str = None) -> NoteSequence:
 
 
 def get_seconds_per_bar(tempo: int = DEFAULT_QUARTERS_PER_MINUTE) -> int:
-    """
-    Evaluate duration of a bar in seconds
+    """Evaluate duration of a bar in seconds
 
     This is important because most magenta models take in duration in seconds,
     but music sounds off when an incomplete bar is played.
 
     Args:
-        tempo: The tempo of the bar in quarters per minute.
-            A quarter is a forth of the duration of a bar.
+      tempo: The tempo of the bar in quarters per minute.
+        A quarter is a forth of the duration of a bar.
+      tempo: int:  (Default value = DEFAULT_QUARTERS_PER_MINUTE)
 
     Returns:
-        float: Number of seconds per bar
+      float: Number of seconds per bar
 
     """
     SECONDS_PER_MINUTE = 60
@@ -109,6 +148,21 @@ def get_generation_seconds(generation_bars: int = 1,
                            primer_sequence: NoteSequence = NoteSequence(),
                            start_with_primer: bool = False,
                            ) -> typing.Dict[str, str]:
+    """
+
+    Args:
+      generation_bars: int: duration, in bars, of the sequence to be generated
+        (Default value = 1).
+      primer_sequence: NoteSequence: a primer note sequence on which to base the
+        tempo value, if given  (Default value = NoteSequence())
+      start_with_primer: bool: True to take primer length into consideration,
+        False otherwise (Default value = False)
+
+    Returns:
+      Dict[str, str]: a dict where start and end times of generation are stored
+        in the keys 'start' and 'end', respectively
+
+    """
     if primer_sequence:
         primer_tempo = primer_sequence.tempos[0].qpm
         seconds_per_bar = get_seconds_per_bar(primer_tempo)
@@ -129,6 +183,26 @@ def setup_generator_options(time: dict,
                             branch_factor: int = 1,
                             steps_per_iteration: int = 1,
                             ) -> GeneratorOptions:
+    """
+
+    Args:
+      time: dict: Contains generation start and end times,
+        in keys 'start' and 'end'
+      temperature: float: The greater is the temperature, the more random
+        and more different from the primer is the resulting sequence
+        (Default value = 1.0)
+      beam_size: int: The greater is the beam_size, the longer is the sequence
+        generated at each iteration (Default value = 1)
+      branch_factor: int: The greater is the branch_factor, the more sequence
+         candidates will be kept at each iteration (Default value = 1)
+      steps_per_iteration: int: number of steps generated at each iteration
+        (Default value = 1)
+
+    Returns:
+      GeneratorOptions: an object that contains the sequence generator options
+        specified by the parameters of this function
+
+    """
     generator_options = GeneratorOptions()
     generator_options.args['temperature'].float_value = temperature
     generator_options.args['beam_size'].int_value = beam_size
@@ -152,6 +226,37 @@ def generate_sequence(model_name,
                       start_with_primer: bool = False,
                       bundle_dir: str = 'bundles',
                       ) -> NoteSequence:
+    """
+
+    Args:
+      model_name: str: Name of a magenta model, e.g. melody_rnn, drums_rnn
+      generator_id: str: A generator id, e.g. 'attention_rnn', 'drum_kit_rnn'
+      checkpoint: Checkpoint: the checkpoint of a bundle
+      generation_bars: int: duration, in bars, of the sequence to be generated
+        (Default value = 1).
+      temperature: float: The greater is the temperature, the more random
+        and more different from the primer is the resulting sequence
+        (Default value = 1.0)
+      beam_size: int: The greater is the beam_size, the longer is the sequence
+        generated at each iteration (Default value = 1)
+      branch_factor: int: The greater is the branch_factor, the more sequence
+         candidates will be kept at each iteration (Default value = 1)
+      steps_per_iteration: int: number of steps generated at each iteration
+        (Default value = 1)
+      primer_file: str: Path to a midi file (Default value = None)
+      start_with_primer: bool: True to take primer length into consideration,
+        False otherwise (Default value = False)
+      bundle_dir: str: Target directory to download bundle files
+        (Default value = 'bundles')
+
+    Returns:
+      NoteSequence: A note sequence in compliance to all given parameters
+
+    Note:
+      This function does not download the generated note sequence to a midi file
+        use the function download_sequence() for that
+
+    """
 
     # download and read bundle files
     bundle_name = GENERATOR_ID_TO_BUNDLE_NAME[generator_id]
@@ -184,6 +289,16 @@ def download_sequence(model_name: str,
                       sequence: NoteSequence = NoteSequence(),
                       output_dir: str = 'output',
                       ) -> None:
+    """
+
+    Args:
+      model_name: str: Name of a magenta model, e.g. melody_rnn, drums_rnn
+      generator_id: str: A generator id, e.g. 'attention_rnn', 'drum_kit_rnn'
+      sequence: NoteSequence: the sequence to be downloaded as a midi file
+        (Default value = NoteSequence())
+      output_dir: str: Target directory to download resulting file
+        (Default value = 'output')
+    """
     date_and_time = time.strftime('%Y-%m-%d_%H%M%S')
     midi_filename = "%s_%s_%s.mid" % (model_name, generator_id, date_and_time)
     midi_file = os.path.join(output_dir, midi_filename)
