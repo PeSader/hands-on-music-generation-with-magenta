@@ -34,6 +34,17 @@ MODEL_NAME_TO_SEQUENCE_GENERATOR = {
 
 def get_bundle(bundle_name: str,
                bundle_dir: str = 'bundles',) -> GeneratorBundle:
+    """
+
+    Args:
+      bundle_name: str: a magenta pre-trained bundle, e.g. attention_rnn.mag
+      bundle_dir: str: target directory to download bundle files
+        (Default value = 'bundles')
+
+    Returns:
+        GeneratorBundle: a bundle file that has already been read
+
+    """
     from magenta.models.shared import sequence_generator_bundle
 
     bundle_file = os.path.join(bundle_dir, bundle_name)
