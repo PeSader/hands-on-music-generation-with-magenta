@@ -34,7 +34,11 @@ MODEL_NAME_TO_SEQUENCE_GENERATOR = {
 
 def get_bundle(bundle_name: str,
                bundle_dir: str = 'bundles',) -> GeneratorBundle:
-    """
+    """ Downloads and reads specified magenta bundle
+
+    Will first attempt to find the bundle by name, in the bundle_dir.  If not
+    found, it will download it and then read it. Bundle files downloaded by
+    this function will keep their official filenames.
 
     Args:
       bundle_name: str: Magenta pre-trained bundle, e.g. attention_rnn.mag
@@ -56,7 +60,10 @@ def get_bundle(bundle_name: str,
 
 
 def import_generator_module(model_name: str):
-    """
+    """ Imports the sequence generator specific to the given model name
+
+    Makes use of the importlib standard library to dinamically import sequence
+    generator modules
 
     Args:
       model_name: str: Name of a magenta model, e.g. melody_rnn, drums_rnn
@@ -80,7 +87,7 @@ def get_generator(generator_module,
                   generator_id: str,
                   checkpoint: Checkpoint,
                   bundle: GeneratorBundle):
-    """
+    """ Returns an uninitialized generator object
 
     Args:
       generator_module: Sequence generator module
@@ -105,7 +112,7 @@ def get_generator(generator_module,
 
 
 def get_primer_sequence(primer_file: str = None) -> NoteSequence:
-    """
+    """ Converts primer midi file to NoteSequence
 
     Args:
       primer_file: str: Path to a midi file (Default value = None)
@@ -123,7 +130,7 @@ def get_primer_sequence(primer_file: str = None) -> NoteSequence:
 
 
 def get_seconds_per_bar(tempo: int = DEFAULT_QUARTERS_PER_MINUTE) -> int:
-    """Evaluate duration of a bar in seconds
+    """Evaluates duration of a bar in seconds
 
     This is important because most magenta models take in duration in seconds,
     but music sounds off when an incomplete bar is played.
@@ -150,7 +157,11 @@ def get_generation_seconds(generation_bars: int = 1,
                            primer_sequence: NoteSequence = NoteSequence(),
                            start_with_primer: bool = False,
                            ) -> typing.Dict[str, str]:
-    """
+    """ Evaluates the start and end times of sequence generation
+
+    If a primer is given as a parameter and start_with_primer is set to True,
+    the sequence generation will only begin after the primer has finished
+    playing
 
     Args:
       generation_bars: int: duration, in bars, of the sequence to be generated
@@ -163,6 +174,10 @@ def get_generation_seconds(generation_bars: int = 1,
     Returns:
       Dict[str, str]: a dict where start and end times of generation are stored
         in the keys 'start' and 'end', respectively
+
+    Todo:
+      * adjust time['end'] in such a way that the generated sequence does not
+        end abruptly
 
     """
     if primer_sequence:
@@ -185,7 +200,10 @@ def setup_generator_options(time: dict,
                             branch_factor: int = 1,
                             steps_per_iteration: int = 1,
                             ) -> GeneratorOptions:
-    """
+    """ Setup GeneratorOptions object with given parameters
+
+    This wrapper function facilitates setting up the GeneratorOptions object,
+    which is common to all magenta models
 
     Args:
       time: dict: Contains generation start and end times,
@@ -228,7 +246,11 @@ def generate_sequence(model_name,
                       start_with_primer: bool = False,
                       bundle_dir: str = 'bundles',
                       ) -> NoteSequence:
-    """
+    """ Generates a NoteSequence given (at least) a model and a generator id
+
+    Although only model_name and generator_id are necessary arguments, the
+    resulting NoteSequence can be customized with non-default values for
+    GeneratorOptions arguments (e.g. temperature, beam_size, etc)
 
     Args:
       model_name: str: Name of a magenta model, e.g. melody_rnn, drums_rnn
@@ -291,7 +313,7 @@ def download_sequence(model_name: str,
                       sequence: NoteSequence = NoteSequence(),
                       output_dir: str = 'output',
                       ) -> None:
-    """
+    """ Downloads a given NoteSequence to a local directory
 
     Args:
       model_name: str: Name of a magenta model, e.g. melody_rnn, drums_rnn
