@@ -67,6 +67,8 @@ def import_generator_module(model_name: str):
 
 
     """
+    from importlib import import_module
+
     sequence_generator_module = MODEL_NAME_TO_SEQUENCE_GENERATOR[model_name]
     import_path = '.'.join(
         ['magenta.models',  model_name, sequence_generator_module])
