@@ -13,8 +13,8 @@ import magenta.music as mm
 import tensorflow as tf
 from magenta.models.melody_rnn import melody_rnn_sequence_generator
 from magenta.music import DEFAULT_QUARTERS_PER_MINUTE
-from magenta.protobuf.generator_pb2 import GeneratorOptions
-from magenta.protobuf.music_pb2 import NoteSequence
+from note_seq.protobuf.generator_pb2 import GeneratorOptions
+from note_seq.protobuf.music_pb2 import NoteSequence
 from visual_midi import Plotter
 
 
