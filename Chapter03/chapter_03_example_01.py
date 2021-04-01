@@ -187,7 +187,7 @@ def generate(bundle_name: str,
     return sequence
 
 
-def app(unused_argv):
+def app():
     # Calling the sequence generator with the basic RNN configuration. The
     # generated output won't have much of the primer in it, since it has a
     # hard time remembering past events.
