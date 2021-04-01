@@ -175,12 +175,12 @@ def get_generation_seconds(generation_bars: int = 1,
       Dict[str, str]: a dict where start and end times of generation are stored
         in the keys 'start' and 'end', respectively
 
-    Todo:
+    TODO:
       * adjust time['end'] in such a way that the generated sequence does not
         end abruptly
 
     """
-    if primer_sequence:
+    if primer_sequence.tempos:
         primer_tempo = primer_sequence.tempos[0].qpm
         seconds_per_bar = get_seconds_per_bar(primer_tempo)
     else:
@@ -341,8 +341,6 @@ sequence = generate_sequence(model_name=model_name,
                              checkpoint=None,
                              generation_bars=2,
                              temperature=1.2,
-                             primer_file=primer_path,
-                             start_with_primer=True,
                              )
 
 download_sequence(model_name, generator_id, sequence)
