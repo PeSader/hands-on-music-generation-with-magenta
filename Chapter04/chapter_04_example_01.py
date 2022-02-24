@@ -12,7 +12,7 @@ import magenta.music as mm
 import tensorflow as tf
 from magenta.models.music_vae import TrainedModel, configs
 from magenta.music import DEFAULT_STEPS_PER_BAR
-from magenta.protobuf.music_pb2 import NoteSequence
+from note_seq.protobuf.music_pb2 import NoteSequence
 from six.moves import urllib
 
 from note_sequence_utils import save_midi, save_plot
